@@ -1,0 +1,54 @@
+@import '../../assets/scss/variable.scss';
+
+.chat-wrapper {
+    background: $background-color;
+    min-height: calc(100vh - $header-height);
+    .chat-container {
+        border-radius: 20px;
+    }
+    .chatbox-input {
+        border-radius: 20px;
+    }
+    .chatbox-wrapper {
+        position: relative;
+    }
+    .chatbox-btn-submit {
+        border-radius: 9999999px;
+        margin-left: 12px;
+        position: absolute;
+        right: 2px;
+        top: 3px;
+    }
+}
+
+.card-wrapper {
+    border-radius: 20px !important;
+    max-height: 500px;
+    max-width: 500px;
+    overflow-y: auto;
+    .chat-card-item {
+        border-radius: 20px !important;
+        color: #000 !important;
+        cursor: pointer;
+
+        &:hover {
+            background: $background-color;
+            color: #fff !important;
+        }
+    }
+}
+.customize-line {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: #fff;
+    margin-top: 15px;
+}
+.link-reference {
+    background-color: #fff;
+    color: #000 !important;
+    border-radius: 10px;
+    font-size: 14px;
+    padding: 5px 8px;
+    text-decoration: none;
+}

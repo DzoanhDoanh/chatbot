@@ -1,0 +1,9 @@
+@import '../../assets/scss/variable.scss';
+
+.faqs-wrapper {
+    background: $background-color;
+    min-height: calc(100vh - $header-height);
+    .faqs-title {
+        color: #5fffef;
+    }
+}

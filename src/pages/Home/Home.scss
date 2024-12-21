@@ -1,0 +1,36 @@
+@import '../../assets/scss/variable.scss';
+
+.wrapper {
+    background: $background-color;
+    .get-start {
+        background: $unbackground-color;
+        outline: none;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 16px;
+        width: 200px;
+        &:hover {
+            opacity: 0.9;
+        }
+    }
+    .text {
+        color: #5fffef;
+    }
+    .desc {
+        text-align: center;
+    }
+    .btn-icon {
+        margin-left: 20px;
+    }
+}
+@media only screen and (max-width: 600px) {
+    .slider-image {
+        width: 100px;
+    }
+    .text {
+        font-size: 25px;
+    }
+    .slider-wrapper {
+        padding: 20px;
+    }
+}

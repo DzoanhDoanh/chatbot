@@ -1,0 +1,73 @@
+@import '../../assets/scss/variable.scss';
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    background-color: #fff !important;
+}
+.login-button {
+    background: $background-color;
+    color: #fff;
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: 0.3s background-color;
+
+    &:hover {
+        background-color: #00b383;
+    }
+}
+.nav-brand {
+    font-size: 24px;
+    color: #fff !important;
+    border-radius: 20px;
+    padding: 7px;
+}
+.nav-logo {
+    width: 60px;
+    height: auto;
+    border-radius: 10px;
+}
+.navbar-toggler {
+    border: none;
+    font-size: 1.25rem;
+}
+.navbar-toggler:focus,
+.btn-close:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+.nav-link {
+    color: #000 !important;
+    position: relative;
+    &.active {
+        color: $text-color !important;
+    }
+}
+.nav-link:hover {
+    color: $text-color !important;
+}
+
+@media (min-width: 991px) {
+    .nav-link::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 3px;
+        background: $background-color;
+        visibility: hidden;
+        transition: 0.3s ease-in-out;
+    }
+    .nav-link:hover::before,
+    .nav-link:active::before {
+        width: 100%;
+        visibility: visible;
+    }
+}

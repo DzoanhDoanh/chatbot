@@ -1,0 +1,9 @@
+@import '../../assets/scss/variable.scss';
+
+.issue-wrapper {
+    background: $background-color;
+    min-height: calc(100vh - $header-height);
+    .issue-title {
+        color: $title-color;
+    }
+}
