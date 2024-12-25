@@ -4,13 +4,19 @@ import { Typewriter } from 'react-simple-typewriter';
 import './Chat.scss';
 import avatar from '../../assets/images/logo-removebg-preview.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleDoubleLeft, faAngleDoubleRight, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import {
+    faAngleDoubleLeft,
+    faAngleDoubleRight,
+    faMicrophone,
+    faPaperPlane,
+} from '@fortawesome/free-solid-svg-icons';
 import Spinner from 'react-bootstrap/Spinner';
 import { Container, ListGroup, Card, Offcanvas } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 import { ChatXAI } from '@langchain/xai';
 import { HumanMessage } from '@langchain/core/messages';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 function Chat() {
     const model = new ChatXAI({
@@ -121,6 +127,22 @@ function Chat() {
             setMessages((prevMessages) => [...prevMessages, botMessage]);
             setLoading(false);
         }, 2000);
+    };
+
+    const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+
+    if (!browserSupportsSpeechRecognition) {
+        return <p>Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.</p>;
+    }
+
+    const handleStartListening = () => {
+        resetTranscript();
+        SpeechRecognition.startListening({ continuous: true, language: 'vi-VN' });
+    };
+
+    const handleStopListening = () => {
+        SpeechRecognition.stopListening();
+        setInputMessage(transcript);
     };
     return (
         <div className="chat-wrapper d-flex justify-content-between mt-102">
@@ -255,11 +277,21 @@ function Chat() {
                         <Form.Group controlId="chatInput" className="d-flex chatbox-wrapper">
                             <Form.Control
                                 type="text"
-                                placeholder="Nhập tin nhắn..."
+                                placeholder={listening ? 'Đang lắng nghe...' : 'Nhập tin nhắn...'}
                                 value={inputMessage}
                                 className="chatbox-input py-2"
                                 onChange={(e) => setInputMessage(e.target.value)}
                             />
+                            <Button
+                                disabled={loading}
+                                onMouseDown={handleStartListening}
+                                onMouseUp={handleStopListening}
+                                onTouchStart={handleStartListening} // Hỗ trợ cảm ứng
+                                onTouchEnd={handleStopListening} // Hỗ trợ cảm ứng
+                                className="record-btn"
+                            >
+                                <FontAwesomeIcon icon={faMicrophone} />
+                            </Button>
                             <Button disabled={loading} variant="primary" type="submit" className="chatbox-btn-submit">
                                 <FontAwesomeIcon icon={faPaperPlane} />
                             </Button>

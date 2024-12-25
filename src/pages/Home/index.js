@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
-import { Col, Container, Row } from 'react-bootstrap';
+import { Container, Row } from 'react-bootstrap';
 import LogoRemoveBg from '../../assets/images/logo-removebg-preview.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +10,7 @@ function Home() {
         <>
             <div className="wrapper mt-102">
                 <Container className=" d-flex align-items-center justify-content-around">
-                    <Row className='slider-wrapper'>
+                    <Row className="slider-wrapper">
                         <div className="col d-flex flex-column justify-content-center align-items-center box-left flex-wrap order-lg-1 order-2">
                             <h1 className="text-center fw-bold text">Xin chào! Mình là</h1>
                             <h1 className="text-center fw-bold text">Chatbot</h1>
