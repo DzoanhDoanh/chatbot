@@ -12,12 +12,9 @@ import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRota
 import { ChatXAI } from '@langchain/xai';
 import { HumanMessage } from '@langchain/core/messages';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { fetchMessage } from '../../services/chatService';
 
 function Chat() {
-    const model = new ChatXAI({
-        apiKey: process.env.REACT_APP_API_KEY, // Default value.
-    });
-
     const [messages, setMessages] = useState([
         {
             id: Date.now(),
@@ -48,11 +45,11 @@ function Chat() {
     };
 
     const res = async (message) => {
-        const res1 = await model.invoke([message]);
+        const res1 = await fetchMessage(message.content, '123456');
         console.log(res1);
         const botMessage = {
             id: Date.now() + 1,
-            text: res1.content,
+            text: res1.response,
             sender: 'bot',
             avatar: avatar,
         };

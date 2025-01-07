@@ -3,6 +3,7 @@ import Home from '../pages/Home';
 import FAQs from '../pages/FAQs';
 import Chat from '../pages/Chat';
 import Issue from '../pages/Issue';
+import DocumentViewer from '../components/Document';
 
 function AppRoutes() {
     return (
@@ -12,6 +13,7 @@ function AppRoutes() {
                 <Route path="/faqs" element={<FAQs />} />
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/issue" element={<Issue />} />
+                <Route path="/doc" element={<DocumentViewer />} />
             </Routes>
         </>
     );
