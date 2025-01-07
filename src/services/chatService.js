@@ -1,6 +1,6 @@
-import axios from './customize-axios';
+import axios from './customizeAxios';
 
-const fetchMessage = (message) => {
-    return axios.get(`users?message=${message}`);
+const fetchMessage = (query, session_id) => {
+    return axios.post(`/query`, { query, session_id });
 };
 export { fetchMessage };

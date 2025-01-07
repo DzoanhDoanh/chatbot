@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: 'https://reqres.in/api/',
+    baseURL: 'https://359c-14-0-17-127.ngrok-free.app',
 });
 
 // Add a response interceptor

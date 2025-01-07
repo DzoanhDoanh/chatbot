@@ -4,12 +4,7 @@ import { Typewriter } from 'react-simple-typewriter';
 import './Chat.scss';
 import avatar from '../../assets/images/logo-removebg-preview.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faAngleDoubleLeft,
-    faAngleDoubleRight,
-    faMicrophone,
-    faPaperPlane,
-} from '@fortawesome/free-solid-svg-icons';
+import { faAngleDoubleLeft, faAngleDoubleRight, faMicrophone, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import Spinner from 'react-bootstrap/Spinner';
 import { Container, ListGroup, Card, Offcanvas } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -211,7 +206,12 @@ function Chat() {
                                     style={{ maxWidth: '70%' }}
                                 >
                                     {message.sender === 'user' ? (
-                                        message.text
+                                        <Typewriter
+                                            words={[message.text]}
+                                            loop={1} // Lặp lại 1 lần
+                                            typeSpeed={0}
+                                            deleteSpeed={0} // Không xóa chữ
+                                        />
                                     ) : (
                                         <div>
                                             <Typewriter
@@ -274,27 +274,35 @@ function Chat() {
                     </div>
 
                     <Form onSubmit={handleSendMessage}>
-                        <Form.Group controlId="chatInput" className="d-flex chatbox-wrapper">
+                        <Form.Group controlId="chatInput" className="chatbox-wrapper d-flex">
                             <Form.Control
+                                as={'textarea'}
                                 type="text"
                                 placeholder={listening ? 'Đang lắng nghe...' : 'Nhập tin nhắn...'}
                                 value={inputMessage}
                                 className="chatbox-input py-2"
                                 onChange={(e) => setInputMessage(e.target.value)}
                             />
-                            <Button
-                                disabled={loading}
-                                onMouseDown={handleStartListening}
-                                onMouseUp={handleStopListening}
-                                onTouchStart={handleStartListening} // Hỗ trợ cảm ứng
-                                onTouchEnd={handleStopListening} // Hỗ trợ cảm ứng
-                                className="record-btn"
-                            >
-                                <FontAwesomeIcon icon={faMicrophone} />
-                            </Button>
-                            <Button disabled={loading} variant="primary" type="submit" className="chatbox-btn-submit">
-                                <FontAwesomeIcon icon={faPaperPlane} />
-                            </Button>
+                            <div className="d-flex " style={{ maxHeight: '45px' }}>
+                                <Button
+                                    disabled={loading}
+                                    onMouseDown={handleStartListening}
+                                    onMouseUp={handleStopListening}
+                                    onTouchStart={handleStartListening} // Hỗ trợ cảm ứng
+                                    onTouchEnd={handleStopListening} // Hỗ trợ cảm ứng
+                                    className="record-btn"
+                                >
+                                    <FontAwesomeIcon icon={faMicrophone} />
+                                </Button>
+                                <Button
+                                    disabled={loading}
+                                    variant="primary"
+                                    type="submit"
+                                    className="chatbox-btn-submit"
+                                >
+                                    <FontAwesomeIcon icon={faPaperPlane} />
+                                </Button>
+                            </div>
                         </Form.Group>
                     </Form>
                 </div>
