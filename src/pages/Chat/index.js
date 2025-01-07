@@ -9,10 +9,11 @@ import Spinner from 'react-bootstrap/Spinner';
 import { Container, ListGroup, Card, Offcanvas } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
-import { ChatXAI } from '@langchain/xai';
 import { HumanMessage } from '@langchain/core/messages';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { fetchMessage } from '../../services/chatService';
+import { Modal } from 'react-bootstrap';
+import PDFComp from '../../PDF/PDFComp';
 
 function Chat() {
     const [messages, setMessages] = useState([
@@ -28,6 +29,9 @@ function Chat() {
     const messagesEndRef = useRef(null);
     const [showHistory, setShowHistory] = useState(false);
     const [showQuestions, setShowQuestions] = useState(false);
+    const [showModal, setShowModal] = useState(false); // Quản lý trạng thái hiển thị modal
+    const [pageNumber, setPageNumber] = useState(''); // Quản lý số trang nhập
+    const textContainerRef = useRef(); // Tham chiếu container để cuộn
 
     const questions = [
         'Em đăng ký rồi bây giờ em muốn bổ sung thêm phương thức và thêm nguyện vọng được không?',
@@ -47,15 +51,33 @@ function Chat() {
     const res = async (message) => {
         const res1 = await fetchMessage(message.content, '123456');
         console.log(res1);
-        const botMessage = {
-            id: Date.now() + 1,
-            text: res1.response,
-            sender: 'bot',
-            avatar: avatar,
-        };
-        console.log(res1);
-        setMessages((prevMessages) => [...prevMessages, botMessage]);
-        setLoading(false);
+        if (res1.response) {
+            const botMessage = {
+                id: Date.now() + 1,
+                text: res1.response,
+                sender: 'bot',
+                avatar: avatar,
+                isRefer: true,
+                refer_values: [
+                    {
+                        title: 'Haui',
+                        url: '#',
+                        pageNumber: 10,
+                    },
+                ],
+            };
+            setMessages((prevMessages) => [...prevMessages, botMessage]);
+            setLoading(false);
+        } else {
+            const botMessage = {
+                id: Date.now() + 1,
+                text: 'Hệ thống đang xảy ra vấn đề',
+                sender: 'bot',
+                avatar: avatar,
+            };
+            setMessages((prevMessages) => [...prevMessages, botMessage]);
+            setLoading(false);
+        }
     };
 
     const handleSendMessage = (e) => {
@@ -111,7 +133,9 @@ function Chat() {
                 refer_values: [
                     {
                         title: 'Haui',
-                        url: 'https://tuyensinh.haui.edu.vn/hoi-dap/giai-dap-mot-so-cac-thac-mac-khi-dang-ky-xet-tuyen-som-dai-hoc-chinh-quy-nam-2024/6633b776fbe6074bc08757eb',
+                        // url: 'https://tuyensinh.haui.edu.vn/hoi-dap/giai-dap-mot-so-cac-thac-mac-khi-dang-ky-xet-tuyen-som-dai-hoc-chinh-quy-nam-2024/6633b776fbe6074bc08757eb',
+                        url: '#',
+                        pageNumber: 10,
                     },
                 ],
             };
@@ -135,6 +159,30 @@ function Chat() {
     const handleStopListening = () => {
         SpeechRecognition.stopListening();
         setInputMessage(transcript);
+    };
+
+    // Xử lý mở modal
+    const openModal = () => {
+        setShowModal(true);
+    };
+
+    // Xử lý đóng modal
+    const closeModal = () => {
+        setShowModal(false);
+    };
+
+    // Xử lý cuộn đến phần tương ứng
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (pageNumber) {
+            const sectionId = `section-${pageNumber}`;
+            const section = textContainerRef.current?.querySelector(`#${sectionId}`);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Không tìm thấy phần này!');
+            }
+        }
     };
     return (
         <div className="chat-wrapper d-flex justify-content-between mt-102">
@@ -226,8 +274,13 @@ function Chat() {
                                                             key={index}
                                                             href={item.url}
                                                             className="btn-sm link-reference me-1"
-                                                            target="_blank"
+                                                            // target="_blank"
                                                             rel="noopener noreferrer"
+                                                            onClick={() => {
+                                                                console.log(item.pageNumber);
+                                                                setPageNumber(item.pageNumber);
+                                                                openModal();
+                                                            }}
                                                         >
                                                             {item.title}
                                                         </a>
@@ -334,6 +387,58 @@ function Chat() {
                     </Offcanvas>
                 </div>
             </Container>
+            <div style={{ padding: '20px' }}>
+                {/* Modal */}
+                <Modal
+                    show={showModal}
+                    onHide={closeModal}
+                    size="lg"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    animation={true}
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>Tìm kiếm và Cuộn</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {/* Form nhập số trang */}
+                        <Form onSubmit={handleSearch}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Nhập số trang</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    placeholder="Ví dụ: 1"
+                                    value={pageNumber}
+                                    onChange={(e) => setPageNumber(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Button type="submit" variant="success">
+                                Tìm kiếm
+                            </Button>
+                        </Form>
+
+                        {/* Nội dung cuộn */}
+                        <div
+                            ref={textContainerRef}
+                            style={{
+                                maxHeight: '400px',
+                                overflowY: 'auto',
+                                marginTop: '20px',
+                                border: '1px solid #ddd',
+                                padding: '10px',
+                                borderRadius: '8px',
+                            }}
+                        >
+                            <PDFComp />
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={closeModal}>
+                            Đóng
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            </div>
         </div>
     );
 }

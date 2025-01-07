@@ -11,7 +11,7 @@ function PDFComp() {
     }
 
     return (
-        <div className="pdf-div" style={{ padding: '50px', backgroundColor: '#dedede', marginTop: '50px' }}>
+        <div className="pdf-div" style={{ padding: '20px', backgroundColor: '#dedede', marginTop: '50px' }}>
             <Document file={result} onLoadSuccess={onDocumentLoadSuccess}>
                 {/* <div style={{ textAlign: 'center' }}>
                     <Page pageNumber={1} renderAnnotationLayer={false} />
@@ -21,7 +21,7 @@ function PDFComp() {
                     .map((page) => {
                         return (
                             <div style={{ textAlign: 'center' }}>
-                                <p>
+                                <p id={`section-${page}`}>
                                     Page {page} of {numPages}
                                 </p>
                                 <Page

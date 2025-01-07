@@ -1,7 +1,7 @@
-import React from 'react';
-import { Container, Row, Col, Card, ListGroup, Form, Button } from 'react-bootstrap';
-function ChatHistory({ chats, onSendMessage }) {
-    return <></>;
-}
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default ChatHistory;
+const SearchAndScroll = () => {
+    return <>abc</>;
+};
+
+export default SearchAndScroll;
