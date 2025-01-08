@@ -50,11 +50,11 @@ function Chat() {
 
     const res = async (message) => {
         const res1 = await fetchMessage(message.content, '123456');
-        console.log(res1);
-        if (res1.response) {
+        console.log('<< check: ', res1);
+        if (res1) {
             const botMessage = {
                 id: Date.now() + 1,
-                text: res1.response,
+                text: res1,
                 sender: 'bot',
                 avatar: avatar,
                 isRefer: true,
