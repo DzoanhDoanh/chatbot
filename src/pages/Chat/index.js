@@ -34,10 +34,9 @@ function Chat() {
     const textContainerRef = useRef(); // Tham chiếu container để cuộn
 
     const questions = [
-        'Em đăng ký rồi bây giờ em muốn bổ sung thêm phương thức và thêm nguyện vọng được không?',
-        'Em có thể đăng ký nhiều phương thức xét tuyển cùng lúc không?',
-        'Bao giờ có kết quả xét tuyển sớm ạ?',
-        'Em có chứng chỉ Tiếng Anh (IELTS 6.5) có thể quy đổi thành điểm Tiếng Anh để đăng ký xét tuyển không ạ?',
+        'Bao nhiêu điểm được sinh viên giỏi, khá, xuất sắc, trung bình',
+        'Mấy điểm qua môn',
+        'Tôi được nghỉ bao nhiêu buổi',
     ];
 
     useEffect(() => {
@@ -50,21 +49,16 @@ function Chat() {
 
     const res = async (message) => {
         const res1 = await fetchMessage(message.content, '123456');
-        console.log('<< check: ', res1);
-        if (res1) {
+        console.log(res1);
+        console.log(res1.response);
+        if (res1.response) {
             const botMessage = {
                 id: Date.now() + 1,
-                text: res1,
+                text: res1.response,
                 sender: 'bot',
                 avatar: avatar,
-                isRefer: true,
-                refer_values: [
-                    {
-                        title: 'Haui',
-                        url: '#',
-                        pageNumber: 10,
-                    },
-                ],
+                isRefer: !!res1.metadata,
+                refer_values: res1.metadata,
             };
             setMessages((prevMessages) => [...prevMessages, botMessage]);
             setLoading(false);
@@ -95,8 +89,7 @@ function Chat() {
         setInputMessage('');
         setLoading(true);
         const message = new HumanMessage(inputMessage);
-
-        // Giả lập phản hồi từ chatbot
+        // phản hồi của chatbot
         res(message);
     };
     const handleCloseHistory = () => setShowHistory(false);
@@ -115,34 +108,9 @@ function Chat() {
         setMessages([...messages, newMessage]);
         setInputMessage('');
         setLoading(true);
-
-        const answers = [
-            'Thí sinh nên đọc kỹ hướng dẫn và chuẩn bị dữ liệu cũng như các nguyện vọng cần đăng ký, phần mềm xét tuyển được thiết kế khi thí sinh đăng ký xong nguyện vọng hệ thống sẽ tự động khóa nên thí sinh không tự sửa được dữ liệu. Trong trường hợp thí sinh muốn thay đổi dữ liệu đăng ký cần liên lạc với Nhà trường theo số điện thoại 0834560255 hoặc trên messenger của panpage https://facebook.com/tuyensinh.haui',
-            'Nếu em có đủ điều kiện xét tuyển nhiều phương thức, em có thể dùng nhiều phương thức để xét tuyển cho các ngành/chương trình đào tạo em thích. Thứ tự NV cao nhất là NV1',
-            'Thời gian công bố kết quả xét tuyển: Trước 17h00 ngày 23/6/2024.',
-            'Không quy đổi điểm chứng chỉ Tiếng Anh để tính cho các môn Tiếng Anh trong học bạ THPT và kết quả thi Tiếng Anh của kỳ thi tốt nghiệp THPT em nhé. Nếu em có điểm IELTS 6.5 em có thể đăng ký xét tuyển sớm theo phương thức 2',
-        ];
-        // Giả lập phản hồi từ chatbot
-        setTimeout(() => {
-            const botMessage = {
-                id: Date.now() + 1,
-                text: answers[index],
-                sender: 'bot',
-                avatar: avatar,
-                isRefer: true,
-                refer_values: [
-                    {
-                        title: 'Haui',
-                        // url: 'https://tuyensinh.haui.edu.vn/hoi-dap/giai-dap-mot-so-cac-thac-mac-khi-dang-ky-xet-tuyen-som-dai-hoc-chinh-quy-nam-2024/6633b776fbe6074bc08757eb',
-                        url: '#',
-                        pageNumber: 10,
-                    },
-                ],
-            };
-
-            setMessages((prevMessages) => [...prevMessages, botMessage]);
-            setLoading(false);
-        }, 2000);
+        const message = new HumanMessage(questions[index]);
+        // phản hồi của chatbot
+        res(message);
     };
 
     const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
@@ -269,22 +237,26 @@ function Chat() {
                                             {message.isRefer ? (
                                                 <>
                                                     <span>Tham khảo: </span>
-                                                    {message.refer_values.map((item, index) => (
-                                                        <a
-                                                            key={index}
-                                                            href={item.url}
-                                                            className="btn-sm link-reference me-1"
-                                                            // target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            onClick={() => {
-                                                                console.log(item.pageNumber);
-                                                                setPageNumber(item.pageNumber);
-                                                                openModal();
-                                                            }}
-                                                        >
-                                                            {item.title}
-                                                        </a>
-                                                    ))}
+                                                    <div className="d-flex flex-wrap">
+                                                        {message.refer_values.map((item, index) => (
+                                                            <p
+                                                                key={index}
+                                                                className="btn-sm my-1 me-1"
+                                                                style={{ cursor: 'pointer' }}
+                                                                rel="noopener noreferrer"
+                                                                onClick={() => {
+                                                                    console.log(item.page_number);
+                                                                    setPageNumber(item.page_number);
+                                                                    openModal();
+                                                                }}
+                                                            >
+                                                                <p className="link-reference">
+                                                                    {item.source.split('. ')[0]} (trang:{' '}
+                                                                    {item.page_number})
+                                                                </p>
+                                                            </p>
+                                                        ))}
+                                                    </div>
                                                 </>
                                             ) : (
                                                 ''
