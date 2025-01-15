@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import { Typewriter } from 'react-simple-typewriter';
 import './Chat.scss';
 import avatar from '../../assets/images/logo-removebg-preview.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleDoubleLeft, faAngleDoubleRight, faMicrophone, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-import Spinner from 'react-bootstrap/Spinner';
-import { Container, ListGroup, Card, Offcanvas } from 'react-bootstrap';
+import { faAngleDoubleLeft, faAngleDoubleRight, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 import { HumanMessage } from '@langchain/core/messages';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { useSpeechRecognition } from 'react-speech-recognition';
 import { fetchMessage } from '../../services/chatService';
-import { Modal } from 'react-bootstrap';
-import PDFComp from '../../PDF/PDFComp';
+
+import ChatHistory from '../../components/ChatHistory';
+import PopularQuestions from '../../components/PopularQuestions';
+import RecordBtn from '../../components/RecordBtn';
+import ModalDoc from '../../components/ModalDoc';
+import MessageBox from '../../components/MessageBox';
 
 function Chat() {
     const [messages, setMessages] = useState([
@@ -31,13 +32,6 @@ function Chat() {
     const [showQuestions, setShowQuestions] = useState(false);
     const [showModal, setShowModal] = useState(false); // Quản lý trạng thái hiển thị modal
     const [pageNumber, setPageNumber] = useState(''); // Quản lý số trang nhập
-    const textContainerRef = useRef(); // Tham chiếu container để cuộn
-
-    const questions = [
-        'Bao nhiêu điểm được sinh viên giỏi, khá, xuất sắc, trung bình',
-        'Mấy điểm qua môn',
-        'Tôi được nghỉ bao nhiêu buổi',
-    ];
 
     useEffect(() => {
         scrollToBottom();
@@ -49,8 +43,6 @@ function Chat() {
 
     const res = async (message) => {
         const res1 = await fetchMessage(message.content, '123456');
-        console.log(res1);
-        console.log(res1.response);
         if (res1.response) {
             const botMessage = {
                 id: Date.now() + 1,
@@ -68,6 +60,13 @@ function Chat() {
                 text: 'Hệ thống đang xảy ra vấn đề',
                 sender: 'bot',
                 avatar: avatar,
+                isRefer: true,
+                refer_values: [
+                    {
+                        source: 'Điều 10',
+                        page_number: 10,
+                    },
+                ],
             };
             setMessages((prevMessages) => [...prevMessages, botMessage]);
             setLoading(false);
@@ -92,91 +91,22 @@ function Chat() {
         // phản hồi của chatbot
         res(message);
     };
-    const handleCloseHistory = () => setShowHistory(false);
-    const handleCloseQuestions = () => setShowQuestions(false);
     const handleShowHistory = () => setShowHistory(true);
     const handleShowQuestions = () => setShowQuestions(true);
-    const handleQuestions = (index) => {
-        setShowQuestions(false);
-        const newMessage = {
-            id: Date.now(),
-            text: questions[index],
-            sender: 'user', // Gửi tin nhắn từ người dùng
-            avatar: avatar,
-        };
 
-        setMessages([...messages, newMessage]);
-        setInputMessage('');
-        setLoading(true);
-        const message = new HumanMessage(questions[index]);
-        // phản hồi của chatbot
-        res(message);
-    };
-
-    const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
-
-    if (!browserSupportsSpeechRecognition) {
-        return <p>Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.</p>;
-    }
-
-    const handleStartListening = () => {
-        resetTranscript();
-        SpeechRecognition.startListening({ continuous: true, language: 'vi-VN' });
-    };
-
-    const handleStopListening = () => {
-        SpeechRecognition.stopListening();
-        setInputMessage(transcript);
-    };
+    const { listening } = useSpeechRecognition();
 
     // Xử lý mở modal
     const openModal = () => {
         setShowModal(true);
     };
 
-    // Xử lý đóng modal
-    const closeModal = () => {
-        setShowModal(false);
-    };
-
-    // Xử lý cuộn đến phần tương ứng
-    const handleSearch = (e) => {
-        e.preventDefault();
-        if (pageNumber) {
-            const sectionId = `section-${pageNumber}`;
-            const section = textContainerRef.current?.querySelector(`#${sectionId}`);
-            if (section) {
-                section.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert('Không tìm thấy phần này!');
-            }
-        }
-    };
+    //this is checkpoint
     return (
         <div className="chat-wrapper d-flex justify-content-between mt-102">
             <Container className="d-flex">
                 <div className="my-5">
-                    <Offcanvas show={showHistory} onHide={handleCloseHistory} responsive="lg">
-                        <Offcanvas.Header closeButton>
-                            <Offcanvas.Title>Lịch sử chat</Offcanvas.Title>
-                        </Offcanvas.Header>
-                        <Offcanvas.Body>
-                            <Card className="shadow-sm card-wrapper">
-                                <Card.Header className="fw-bold ">Lịch sử chat</Card.Header>
-                                <ListGroup variant="flush" className="p-3">
-                                    <ListGroup.Item
-                                        disabled={loading}
-                                        className="question-item mb-2 chat-card-item"
-                                        style={{ borderRadius: '20px' }}
-                                    >
-                                        <span className="me-2">
-                                            <FontAwesomeIcon icon={faClockRotateLeft} /> Điều kiện nhận học bổng?
-                                        </span>
-                                    </ListGroup.Item>
-                                </ListGroup>
-                            </Card>
-                        </Offcanvas.Body>
-                    </Offcanvas>
+                    <ChatHistory showHistory={showHistory} setShowHistory={setShowHistory} loading={loading} />
                 </div>
                 <div className="pt-5 mx-3" style={{ width: '100%' }}>
                     <div className="d-flex justify-content-between">
@@ -189,111 +119,7 @@ function Chat() {
                             <FontAwesomeIcon icon={faAngleDoubleRight}></FontAwesomeIcon>
                         </Button>
                     </div>
-                    <div
-                        className="chat-box border chat-container p-3 mb-3"
-                        style={{ height: '400px', overflowY: 'auto', backgroundColor: '#fff', maxWidth: '100%' }}
-                    >
-                        {messages.map((message) => (
-                            <div
-                                key={message.id}
-                                className={`d-flex mb-3 ${
-                                    message.sender === 'user' ? 'justify-content-end' : 'justify-content-start'
-                                }`}
-                            >
-                                {message.sender === 'bot' && (
-                                    <img
-                                        src={message.avatar}
-                                        alt="Bot Avatar"
-                                        style={{
-                                            width: '40px',
-                                            height: '40px',
-                                            borderRadius: '50%',
-                                            marginRight: '10px',
-                                        }}
-                                    />
-                                )}
-                                <div
-                                    className={`message p-2 rounded ${
-                                        message.sender === 'user' ? 'bg-color text-white' : 'bg-color text-white'
-                                    }`}
-                                    style={{ maxWidth: '70%' }}
-                                >
-                                    {message.sender === 'user' ? (
-                                        <Typewriter
-                                            words={[message.text]}
-                                            loop={1} // Lặp lại 1 lần
-                                            typeSpeed={0}
-                                            deleteSpeed={0} // Không xóa chữ
-                                        />
-                                    ) : (
-                                        <div>
-                                            <Typewriter
-                                                words={[message.text]}
-                                                loop={1} // Lặp lại 1 lần
-                                                typeSpeed={10}
-                                                deleteSpeed={0} // Không xóa chữ
-                                            />{' '}
-                                            <span className="customize-line mb-2"></span>
-                                            {message.isRefer ? (
-                                                <>
-                                                    <span>Tham khảo: </span>
-                                                    <div className="d-flex flex-wrap">
-                                                        {message.refer_values.map((item, index) => (
-                                                            <p
-                                                                key={index}
-                                                                className="btn-sm my-1 me-1"
-                                                                style={{ cursor: 'pointer' }}
-                                                                rel="noopener noreferrer"
-                                                                onClick={() => {
-                                                                    console.log(item.page_number);
-                                                                    setPageNumber(item.page_number);
-                                                                    openModal();
-                                                                }}
-                                                            >
-                                                                <p className="link-reference">
-                                                                    {item.source.split('. ')[0]} (trang:{' '}
-                                                                    {item.page_number})
-                                                                </p>
-                                                            </p>
-                                                        ))}
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                ''
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                                {message.sender === 'user' && (
-                                    <img
-                                        src={message.avatar}
-                                        alt="User Avatar"
-                                        style={{
-                                            width: '40px',
-                                            height: '40px',
-                                            borderRadius: '50%',
-                                            marginLeft: '10px',
-                                        }}
-                                    />
-                                )}
-                            </div>
-                        ))}
-                        {loading && (
-                            <div className="d-flex justify-content-start mb-3">
-                                <img
-                                    src={avatar}
-                                    alt="Bot Avatar"
-                                    style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }}
-                                />
-                                <div className="message p-2 rounded bg-color text-white" style={{ maxWidth: '70%' }}>
-                                    <Spinner animation="grow" size="sm" />
-                                    <Spinner animation="grow" size="sm" className="mx-2" />
-                                    <Spinner animation="grow" size="sm" />
-                                </div>
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
+                    <MessageBox messages={messages} openModal={openModal} setPageNumber={setPageNumber} loading={loading} messagesEndRef={messagesEndRef}/>
 
                     <Form onSubmit={handleSendMessage}>
                         <Form.Group controlId="chatInput" className="chatbox-wrapper d-flex">
@@ -306,16 +132,7 @@ function Chat() {
                                 onChange={(e) => setInputMessage(e.target.value)}
                             />
                             <div className="d-flex " style={{ maxHeight: '45px' }}>
-                                <Button
-                                    disabled={loading}
-                                    onMouseDown={handleStartListening}
-                                    onMouseUp={handleStopListening}
-                                    onTouchStart={handleStartListening} // Hỗ trợ cảm ứng
-                                    onTouchEnd={handleStopListening} // Hỗ trợ cảm ứng
-                                    className="record-btn"
-                                >
-                                    <FontAwesomeIcon icon={faMicrophone} />
-                                </Button>
+                                <RecordBtn setInputMessage={setInputMessage} loading={loading} />
                                 <Button
                                     disabled={loading}
                                     variant="primary"
@@ -329,87 +146,26 @@ function Chat() {
                     </Form>
                 </div>
                 <div className="my-5">
-                    <Offcanvas
-                        show={showQuestions}
-                        onHide={handleCloseQuestions}
-                        responsive="lg"
-                        placement="end"
-                        name="end"
-                    >
-                        <Offcanvas.Header closeButton>
-                            <Offcanvas.Title>Những câu hỏi phổ biến</Offcanvas.Title>
-                        </Offcanvas.Header>
-                        <Offcanvas.Body>
-                            <Card className="shadow-sm card-wrapper">
-                                <Card.Header className="fw-bold text-color">Những câu hỏi phổ biến</Card.Header>
-                                <ListGroup variant="flush" className="p-3">
-                                    {questions.map((questions, index) => (
-                                        <ListGroup.Item
-                                            disabled={loading}
-                                            onClick={() => handleQuestions(index)}
-                                            key={index}
-                                            className="question-item mb-2 chat-card-item"
-                                        >
-                                            <span className="me-2">💬</span> {questions}
-                                        </ListGroup.Item>
-                                    ))}
-                                </ListGroup>
-                            </Card>
-                        </Offcanvas.Body>
-                    </Offcanvas>
+                    <PopularQuestions
+                        showQuestions={showQuestions}
+                        setShowQuestions={setShowQuestions}
+                        loading={loading}
+                        fetchMessage={res}
+                        messages={messages}
+                        setMessages={setMessages}
+                        setInputMessage={setInputMessage}
+                        setLoading={setLoading}
+                    />
                 </div>
             </Container>
             <div style={{ padding: '20px' }}>
                 {/* Modal */}
-                <Modal
-                    show={showModal}
-                    onHide={closeModal}
-                    size="lg"
-                    aria-labelledby="contained-modal-title-vcenter"
-                    centered
-                    animation={true}
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title>Tìm kiếm và Cuộn</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        {/* Form nhập số trang */}
-                        <Form onSubmit={handleSearch}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Nhập số trang</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="Ví dụ: 1"
-                                    value={pageNumber}
-                                    onChange={(e) => setPageNumber(e.target.value)}
-                                />
-                            </Form.Group>
-                            <Button type="submit" variant="success">
-                                Tìm kiếm
-                            </Button>
-                        </Form>
-
-                        {/* Nội dung cuộn */}
-                        <div
-                            ref={textContainerRef}
-                            style={{
-                                maxHeight: '400px',
-                                overflowY: 'auto',
-                                marginTop: '20px',
-                                border: '1px solid #ddd',
-                                padding: '10px',
-                                borderRadius: '8px',
-                            }}
-                        >
-                            <PDFComp />
-                        </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={closeModal}>
-                            Đóng
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
+                <ModalDoc
+                    showModal={showModal}
+                    setShowModal={setShowModal}
+                    pageNumber={pageNumber}
+                    setPageNumber={setPageNumber}
+                />
             </div>
         </div>
     );
