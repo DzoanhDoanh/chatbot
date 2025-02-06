@@ -9,12 +9,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { HumanMessage } from '@langchain/core/messages';
 import { useSpeechRecognition } from 'react-speech-recognition';
 import { fetchMessage } from '../../services/chatService';
-
-import ChatHistory from '../../components/ChatHistory';
 import PopularQuestions from '../../components/PopularQuestions';
 import RecordBtn from '../../components/RecordBtn';
 import ModalDoc from '../../components/ModalDoc';
 import MessageBox from '../../components/MessageBox';
+import UserImport from '../../components/UserImport';
 
 function Chat() {
     const [messages, setMessages] = useState([
@@ -106,20 +105,28 @@ function Chat() {
         <div className="chat-wrapper d-flex justify-content-between mt-102">
             <Container className="d-flex">
                 <div className="my-5">
-                    <ChatHistory showHistory={showHistory} setShowHistory={setShowHistory} loading={loading} />
+                    {/* <ChatHistory showHistory={showHistory} setShowHistory={setShowHistory} loading={loading} /> */}
+                    <UserImport showHistory={showHistory} setShowHistory={setShowHistory} loading={loading} />
+                    {/* <FileImportComponent /> */}
                 </div>
                 <div className="pt-5 mx-3" style={{ width: '100%' }}>
                     <div className="d-flex justify-content-between">
                         <Button variant="text" className="d-lg-none text-white" onClick={handleShowHistory}>
                             <FontAwesomeIcon icon={faAngleDoubleLeft}></FontAwesomeIcon>
-                            Mở lịch sử chat
+                            Mở file đã thêm
                         </Button>
                         <Button variant="text" className="d-lg-none text-white" onClick={handleShowQuestions}>
                             Mở câu hỏi mẫu
                             <FontAwesomeIcon icon={faAngleDoubleRight}></FontAwesomeIcon>
                         </Button>
                     </div>
-                    <MessageBox messages={messages} openModal={openModal} setPageNumber={setPageNumber} loading={loading} messagesEndRef={messagesEndRef}/>
+                    <MessageBox
+                        messages={messages}
+                        openModal={openModal}
+                        setPageNumber={setPageNumber}
+                        loading={loading}
+                        messagesEndRef={messagesEndRef}
+                    />
 
                     <Form onSubmit={handleSendMessage}>
                         <Form.Group controlId="chatInput" className="chatbox-wrapper d-flex">
